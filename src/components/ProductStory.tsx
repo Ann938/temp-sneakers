@@ -28,8 +28,6 @@ export default function ProductStory() {
 
         {/* ---- Обувь: один слой на ракурс ---- */}
         <div className={s.shoes} aria-hidden="true">
-          {/* МВ: круг-подложка «студии» под обувью */}
-          <span className={s.spot} data-spot />
           {features.map((f) => (
             <img key={f.id} className={s.shoe} src={f.image.src} alt="" data-shoe={f.id} decoding="async" />
           ))}

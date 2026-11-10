@@ -45,10 +45,10 @@ export default function Choice() {
       </h2>
       <div className={s.row}>
         <div className={s.controls} data-choice-controls>
-          <fieldset className={s.group}>
-            <legend className={s.label}>
+          <div className={s.group} role="group" aria-labelledby="choice-color">
+            <p className={s.label} id="choice-color">
               {choose.colorLabel}: <span className={s.value}>{color.label}</span>
-            </legend>
+            </p>
             <div className={s.swatches} role="radiogroup" aria-label={choose.colorLabel}>
               {colors.map((c) => (
                 <button
@@ -63,10 +63,10 @@ export default function Choice() {
                 />
               ))}
             </div>
-          </fieldset>
+          </div>
 
-          <fieldset className={s.group}>
-            <legend className={s.label}>{choose.sizeLabel}</legend>
+          <div className={s.group} role="group" aria-labelledby="choice-size">
+            <p className={s.label} id="choice-size">{choose.sizeLabel}</p>
             <div className={s.sizes} role="radiogroup" aria-label={choose.sizeLabel} ref={sizesRef}>
               {sizes.map((n) => (
                 <button
@@ -81,7 +81,7 @@ export default function Choice() {
                 </button>
               ))}
             </div>
-          </fieldset>
+          </div>
         </div>
 
         <div className={s.slot} data-choice-slot>

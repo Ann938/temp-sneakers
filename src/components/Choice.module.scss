@@ -40,10 +40,8 @@
 .label {
   @include label;
   color: var(--temp-primary);
-  float: left; // legend внутри flex ведёт себя как обычный блок только так
   width: 100%;
-  margin-bottom: u(16);
-  text-align: center;
+  text-align: center; // до кружков/размеров 16 — это gap группы, своего отступа нет
 }
 
 .value {
@@ -53,7 +51,6 @@
 .swatches {
   display: flex;
   gap: u(12);
-  clear: both;
 }
 
 // «Цвет / …»: круг 29px с тонкой обводкой, у выбранного — внешнее кольцо 44px
@@ -103,7 +100,6 @@
   display: flex;
   justify-content: center;
   gap: u(16);
-  clear: both;
 }
 
 // «ТЕМП / Размер»
@@ -243,21 +239,18 @@
     justify-content: center;
   }
 
-  // «Выбор размера» (405:657): одна строка 48 с шагом 10, листается вбок.
-  // Лента выходит из колонки до краёв экрана — обрезанная кнопка у края
-  // подсказывает, что размеров больше.
+  // «Выбор размера» (405:657): одна строка 48 с шагом 10, листается вбок
+  // внутри колонки 358 — поля 16 по краям экрана сохраняются, обрезанная
+  // кнопка у края колонки подсказывает, что размеров больше.
   .sizes {
     display: flex;
     flex-wrap: nowrap; // перебивает перенос из ДВ
     justify-content: flex-start;
     gap: u(10);
-    width: calc(100% + #{u(32)});
-    margin-inline: u(-16);
-    padding-inline: u(16);
+    width: 100%;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x proximity;
-    scroll-padding-inline: u(16);
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
 

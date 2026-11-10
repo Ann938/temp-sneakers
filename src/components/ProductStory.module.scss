@@ -64,10 +64,6 @@
   pointer-events: none;
 }
 
-.spot {
-  display: none; // только МВ
-}
-
 .shoe {
   position: absolute;
   left: 0;
@@ -163,7 +159,6 @@
     flex-direction: column;
     justify-content: center;
     gap: u(32);
-    padding-bottom: u(24);
 
     .h2 {
       @include m-h1;
@@ -206,24 +201,6 @@
   // выбор пары — по центру экрана, без пустого хвоста под кнопкой
   .choice {
     align-items: center;
-    padding-bottom: u(16);
   }
 
-  // «Студия»: мягкий круг под обувью. Центр и размер ставит сцена —
-  // по свободной зоне между текстом и низом экрана.
-  .spot {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle at 50% 42%,
-      color-mix(in srgb, var(--temp-accent) 55%, var(--temp-surface)) 0%,
-      var(--temp-surface) 62%,
-      color-mix(in srgb, var(--temp-surface) 0%, transparent) 72%
-    );
-    opacity: 0;
-    will-change: transform, opacity;
-  }
 }

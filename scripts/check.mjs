@@ -85,7 +85,7 @@ await page.getByRole("navigation", { name: "Разделы" }).getByText("Цве
 await page.waitForURL("**/#choose");
 await wait(2500);
 await shot("from-page-to-choose");
-log("from page -> choose scrollY", await Y(), "label:", await page.locator("legend").first().innerText());
+log("from page -> choose scrollY", await Y(), "label:", await page.locator("#choice-color").innerText());
 
 log("errors:", errors.length ? errors.join("\n") : "none");
 await browser.close();

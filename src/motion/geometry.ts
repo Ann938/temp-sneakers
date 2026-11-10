@@ -12,7 +12,7 @@ export const headerH = () => (isMobile() ? 80 : 96);
 // Должно совпадать с --u в globals.scss
 export function getU() {
   return isMobile()
-    ? Math.min(window.innerWidth / 390, window.innerHeight / 800, 1.6)
+    ? Math.min((window.innerWidth - 32) / 358, window.innerHeight / 660, 1.6)
     : Math.min(window.innerWidth / 1440, window.innerHeight / 860, 1.3333);
 }
 

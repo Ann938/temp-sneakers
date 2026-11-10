@@ -36,7 +36,7 @@ export function buildHero(root: HTMLElement, { reduced, mobile }: { reduced: boo
     geo.hero = relRect(heroSlot, stage);
     geo.card = relRect(cardSlot, stage);
     // «Почти на весь экран»: под хэдером, с тонкими полями по краям
-    const pad = (mobile ? 8 : 16) * geo.u;
+    const pad = 16 * geo.u; // поля 16 и на МВ
     const top = headerH() * geo.u;
     geo.full = { x: pad, y: top, w: geo.W - pad * 2, h: geo.H - top - pad };
     // reduced motion: без «подъезда» камеры — фото сразу переходит в карточку

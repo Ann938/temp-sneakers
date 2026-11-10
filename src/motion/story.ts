@@ -10,7 +10,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { features } from "@/content";
 import { registerTarget } from "@/lib/scroll";
-import { fitRect, getU, poseToPx, poseToTransform, relRect, type Pose, type PxPose } from "./geometry";
+import { fitRect, getU, headerH, poseToPx, poseToTransform, relRect, type Pose, type PxPose } from "./geometry";
 
 type ShoeId = (typeof features)[number]["id"] | "front";
 
@@ -39,17 +39,19 @@ const POSES_D: Record<ShoeId, [Pose, Pose]> = {
   front: [{ cx: 720, dy: 10, w: 960 }, { cx: 720, dy: 6, w: 990 }],
 };
 
-// МВ (холст 390): «карточка товара» — текст сверху, вся остальная высота
-// экрана — студия. dy здесь от центра этой зоны (считается по фактической
-// высоте текста), поэтому пустот нет на любом телефоне. Обувь крупная и
-// чуть выходит за края экрана — ощущение крупного плана.
-const POSES_M: Record<ShoeId, [Pose, Pose]> = {
-  landing: [{ cx: 195, dy: 0, w: 430 }, { cx: 202, dy: 4, w: 456 }],
-  fresh: [{ cx: 195, dy: 0, w: 390 }, { cx: 190, dy: -4, w: 414 }],
-  fit: [{ cx: 195, dy: 0, w: 430 }, { cx: 200, dy: -4, w: 452 }],
-  route: [{ cx: 208, dy: 0, w: 450 }, { cx: 214, dy: 4, w: 474 }],
-  front: [{ cx: 195, dy: 0, w: 440 }, { cx: 195, dy: -4, w: 460 }],
+// МВ: позы не задаются числами, а считаются по факту (см. measureMobile):
+// текст + отступ 32 + обувь — одна группа, которая стоит по центру экрана
+// под хэдером. Обувь по ширине не выходит за колонку 358 (поля 16).
+// Видимая часть обуви внутри PNG (доли кадра: x0, y0, x1, y1) — замер по исходникам.
+const BBOX: Record<ShoeId, [number, number, number, number]> = {
+  landing: [0.053, 0.128, 0.972, 0.9],
+  fresh: [0.026, 0.148, 0.978, 0.85],
+  fit: [0.052, 0.117, 0.959, 0.908],
+  route: [0.111, 0.042, 0.955, 0.95],
+  front: [0.102, 0.139, 0.898, 0.889],
 };
+const M_COLUMN = 358;
+const M_GAP = 32; // текст → изображение, как в макете МВ
 
 // Кроссовок на фото «Лёгкость»: центр и доля ширины кадра (замер по исходнику)
 const STEP_SHOE = { fx: 0.679, fy: 0.635, fw: 0.437 };
@@ -60,7 +62,7 @@ const PROFILE_FILL = 0.919;
 const PAIR_ASPECT = 1672 / 941;
 
 export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: boolean; mobile: boolean }) {
-  const POSES = mobile ? POSES_M : POSES_D;
+  const POSES = POSES_D;
   const q = <T extends Element = HTMLElement>(sel: string) => root.querySelector(sel) as T;
   const stage = q("[data-stage]");
   const stepText = q("[data-step-text]");
@@ -88,26 +90,45 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     bridgeStart: {} as PxPose,
     photoMove: { x: 0, y: 0, scale: 1 },
     choicePose: {} as PxPose,
-    zoneMid: 0,
+    mPose: {} as Record<ShoeId, PxPose>,
   };
 
-  // МВ: позы считаются от центра студии под текстом, ДВ — от центра экрана
-  const px = (p: Pose): PxPose =>
-    mobile
-      ? { cx: (g.W - 390 * g.u) / 2 + p.cx * g.u, cy: g.zoneMid + p.dy * g.u, w: p.w * g.u }
-      : poseToPx(p, g.W, g.H);
+  const px = (p: Pose): PxPose => poseToPx(p, g.W, g.H);
 
-  const spot = q("[data-spot]");
-  const copyPositioners = Object.values(copy).map((c) => c.parentElement as HTMLElement);
-  const measureZone = () => {
+  // ---- МВ: каждое состояние — группа «текст + обувь» по центру экрана ----
+  const words = wordL.parentElement as HTMLElement;
+  const textOf = (id: ShoeId) => (id === "front" ? words : (copy[id].parentElement as HTMLElement));
+  const measureMobile = () => {
+    for (const id of ids) {
+      textOf(id).style.removeProperty(id === "front" ? "padding-top" : "top");
+    }
     if (!mobile) return;
-    // нижняя граница самого высокого текста — дальше начинается студия
-    const textBottom = Math.max(...copyPositioners.map((el) => { const r = relRect(el, stage); return r.y + r.h; }));
-    const top = textBottom + 8 * g.u;
-    const bottom = g.H - 12 * g.u;
-    g.zoneMid = (top + bottom) / 2;
-    const d = Math.min((bottom - top) * 0.95, 380 * g.u);
-    Object.assign(spot.style, { width: `${d}px`, height: `${d}px`, left: `${g.W / 2 - d / 2}px`, top: `${g.zoneMid - d / 2}px` });
+    const u = g.u;
+    const head = headerH() * u;
+    const area = g.H - head;
+    for (const id of ids) {
+      const [x0, y0, x1, y1] = BBOX[id];
+      const [sw, sh] = SRC[id];
+      const textH = id === "front" ? wordL.offsetHeight : textOf(id).offsetHeight;
+      // ширина: видимая обувь ровно в колонку 358, но не выше свободного места
+      const maxVisH = area - textH - M_GAP * u - 48 * u;
+      let w = (M_COLUMN * u) / (x1 - x0);
+      const visH = (wW: number) => wW * (sh / sw) * (y1 - y0);
+      if (visH(w) > maxVisH) w = maxVisH / ((sh / sw) * (y1 - y0));
+      const groupH = textH + M_GAP * u + visH(w);
+      const top = head + Math.max(16 * u, (area - groupH) / 2);
+      // текст встаёт в начало группы
+      if (id === "front") textOf(id).style.paddingTop = `${top - head}px`;
+      else textOf(id).style.top = `${top - head}px`;
+      // обувь: верх видимой части — сразу под текстом, по горизонтали — центр колонки
+      const imgH = w * (sh / sw);
+      const shoeTop = top + textH + M_GAP * u;
+      g.mPose[id] = {
+        cx: g.W / 2 - ((x0 + x1) / 2 - 0.5) * w,
+        cy: shoeTop - y0 * imgH + imgH / 2,
+        w,
+      };
+    }
   };
 
   const choiceInner = choice.firstElementChild as HTMLElement;
@@ -124,7 +145,7 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     g.W = s.width;
     g.H = s.height;
     g.u = getU();
-    measureZone();
+    measureMobile();
 
     // Фото шага и точка кроссовка на нём. На МВ фото обрезано (cover),
     // поэтому точку считаем от реального положения картинки в слоте.
@@ -136,7 +157,7 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     // профиль такого размера, чтобы его обувь совпала с обувью на фото
     const profileW = (img.w * STEP_SHOE.fw) / PROFILE_FILL;
     g.bridgeStart = { cx: shoeX, cy: shoeY, w: profileW };
-    const land = px(POSES.landing[0]);
+    const land = mobile ? g.mPose.landing : px(POSES.landing[0]);
     g.photoMove = { x: land.cx - shoeX, y: land.cy - shoeY, scale: land.w / profileW };
 
     // Блок выбора должен целиком помещаться в экран: на телефоне с панелями
@@ -155,7 +176,7 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
 
     // Базовая ширина = самая крупная поза: масштаб только ≤ 1
     for (const id of ids) {
-      const maxW = Math.max(...POSES[id].map((p) => p.w * g.u));
+      const maxW = mobile ? g.mPose[id].w : Math.max(...POSES[id].map((p) => p.w * g.u));
       const [sw, sh] = SRC[id];
       const w = Math.min(maxW, sw * 1.15); // не растягиваем исходник сильнее 115%
       g.base[id] = { w, h: (w * sh) / sw };
@@ -170,12 +191,13 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     y: () => poseToTransform(pose(), g.base[id].w, g.base[id].h).y,
     scale: () => poseToTransform(pose(), g.base[id].w, g.base[id].h).scale,
   });
-  const at = (id: ShoeId, i: 0 | 1) => () => px(POSES[id][i]);
+  // МВ: одна поза на состояние — камера не приближается, чтобы обувь не выходила за поля 16
+  const at = (id: ShoeId, i: 0 | 1) => () => (mobile ? g.mPose[id] : px(POSES[id][i]));
   const U = (n: number) => () => n * g.u;
 
   // ---- Таймлайн ----
   const M = reduced ? 0.3 : 1; // при reduced motion переходы короткие, без полётов
-  const PUSH = !reduced;
+  const PUSH = !reduced && !mobile;
   const HOLD = 0.9;
   const tl = gsap.timeline({ defaults: { ease: "none" } });
   let t = 0;
@@ -199,8 +221,6 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     t,
   );
   tl.to(shoe.landing, { opacity: 1, duration: 0.6 * M }, t + 0.6 * M);
-  // МВ: студия проявляется вместе с кроссовком без фона
-  if (mobile) tl.fromTo(spot, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.8 * M, ease: "power2.out" }, t + 0.7 * M);
   t += B;
 
   // Тексты и прогресс
@@ -253,7 +273,6 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
   tl.to(wordL, { x: U(-90), autoAlpha: 0, duration: 0.4 * F, ease: "power1.in" }, t);
   tl.to(wordR, { x: U(90), autoAlpha: 0, duration: 0.4 * F, ease: "power1.in" }, t);
   tl.to(shoe.front, { ...T("front", () => g.choicePose), duration: F, ease: "power3.inOut" }, t);
-  if (mobile) tl.to(spot, { autoAlpha: 0, scale: 0.8, duration: 0.4 * F, ease: "power1.in" }, t);
   // интерфейс выбора появляется, когда пара уже ушла из зоны заголовка;
   // на МВ пара летит вверх сквозь зону цветов и размеров — ждём дольше
   const late = mobile ? 0.12 : 0;
