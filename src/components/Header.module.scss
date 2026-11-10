@@ -1,0 +1,236 @@
+@use "styles/core" as *;
+
+// Хэдер закреплён: сцены идут под ним, обувь в него не заезжает —
+// безопасная зона сцен начинается ниже u($header-h).
+.header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  height: u($header-h);
+  background: color-mix(in srgb, var(--temp-background) 86%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
+  transition: background-color 0.5s var(--ease-out);
+}
+
+.inner {
+  @include container;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  @include focus-ring;
+  border-radius: u(6);
+}
+
+.nav {
+  display: flex;
+  gap: u(36);
+  // в макете меню стоит левее центра (x 413 из 1440) — держим точную позицию
+  position: absolute;
+  left: u(413.5 - 80);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.link {
+  position: relative;
+  font-size: u(17);
+  line-height: 1.25;
+  @include focus-ring;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: u(-4);
+    height: u(1.5);
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    &:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: u(20);
+}
+
+.cta {
+  @include pill(48);
+  width: u(196);
+  @include focus-ring;
+}
+
+.burger,
+.menu,
+.scrim {
+  display: none;
+}
+
+// ================= МВ =================
+@include mobile {
+  .header {
+    height: u($m-header-h);
+  }
+
+  .inner {
+    @include m-container;
+  }
+
+  .nav,
+  .cta {
+    display: none;
+  }
+
+  .actions {
+    gap: u(12);
+  }
+
+  // «Открыть меню»: круг 44 с тонкой обводкой, две линии → крестик
+  .burger {
+    display: grid;
+    place-items: center;
+    position: relative;
+    width: u(44);
+    height: u(44);
+    border-radius: 50%;
+    border: u(1) solid var(--temp-border);
+    @include focus-ring;
+
+    span {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: u(18);
+      height: u(1.8);
+      margin-left: u(-9);
+      border-radius: u(2);
+      background: var(--temp-primary);
+      transition: transform 0.45s var(--ease-out);
+
+      &:first-child {
+        transform: translateY(u(-3.5));
+      }
+      &:last-child {
+        transform: translateY(u(3.5));
+      }
+    }
+  }
+
+  .header[data-open] .burger span {
+    &:first-child {
+      transform: rotate(45deg);
+    }
+    &:last-child {
+      transform: rotate(-45deg);
+    }
+  }
+
+  // «МВ · меню открыто»: панель выезжает из-под хэдера
+  .menu {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 1;
+    padding: u(24) u(16) u(32);
+    background: var(--temp-background);
+    border-radius: 0 0 u(24) u(24);
+    box-shadow: 0 u(24) u(40) rgba(16, 28, 36, 0.12);
+    clip-path: inset(0 0 100% 0 round 0 0 u(24) u(24));
+    visibility: hidden;
+    transition:
+      clip-path 0.55s var(--ease-out),
+      visibility 0s 0.55s;
+  }
+
+  .header[data-open] .menu {
+    clip-path: inset(0 0 0 0 round 0 0 u(24) u(24));
+    visibility: visible;
+    transition: clip-path 0.55s var(--ease-out);
+  }
+
+  // «Навигация» (416:564): пункты 20 Medium, строка 32 на всю ширину
+  // колонки 358, шаг 16; сверху 24, до кнопки 32
+  .menuNav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: u(16);
+    padding-bottom: u(32);
+  }
+
+  .menuLink {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: u(32);
+    font-weight: 500;
+    font-size: u(20);
+    line-height: normal;
+    @include focus-ring;
+
+    span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(u(14));
+      transition:
+        opacity 0.3s,
+        transform 0.5s var(--ease-out);
+    }
+  }
+
+  .header[data-open] .menuLink span {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.08s + var(--i) * 0.05s);
+  }
+
+  .menuCta {
+    @include pill(48);
+    width: 100%;
+    @include focus-ring;
+  }
+
+  // затемнение под меню, по тапу закрывает. backdrop-filter хэдера делает
+  // его контейнером для fixed-детей, поэтому слой просто тянется вниз на экран.
+  .scrim {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 100svh;
+    z-index: 0;
+    background: rgba(8, 12, 14, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+
+  .header[data-open] .scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // при открытом меню хэдер становится непрозрачным, как в макете
+  .header[data-open] {
+    background: var(--temp-background);
+  }
+}

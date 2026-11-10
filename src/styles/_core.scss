@@ -1,0 +1,103 @@
+// Ядро стилей ТЕМП: масштаб, сетка, шкала текста, миксины.
+// Подключается в модулях через @use "@/styles/core" as *;
+
+// Макет ДВ свёрстан в координатах 1440. Числа из Figma пишем как есть и
+// прогоняем через u(). --u считается в globals.scss один раз.
+@function u($n) {
+  @return calc(#{$n} * var(--u));
+}
+
+$canvas: 1440;
+$content: 1280; // ширина контента во всех секциях (поля по 80)
+$header-h: 96;
+$radius: 24;
+
+// Брейкпоинты по стандарту reut: всё уже десктопа — одна колонка МВ.
+// Телефон и планшет отличаются только базисом масштаба (см. globals.scss).
+@mixin mobile { @media (max-width: 1279px) { @content; } }
+@mixin phone  { @media (max-width: 767px)  { @content; } }
+
+// Мобильный макет «ТЕМП / МВ» — 390, контент 358, хэдер 80.
+// Внутри @include mobile числа читаются как пиксели этого макета.
+$m-content: 358;
+$m-header-h: 80;
+
+@mixin m-container {
+  width: u($m-content);
+  margin-inline: auto;
+}
+@mixin m-h1 {
+  font-size: u(34);
+  letter-spacing: u(-1.02);
+}
+@mixin m-h2 {
+  font-size: u(32);
+  letter-spacing: u(-0.96);
+}
+@mixin m-lead {
+  font-size: u(16);
+}
+
+@mixin container {
+  width: u($content);
+  margin-inline: auto;
+}
+
+// ---- Шкала текста из Figma ----
+@mixin h1 {
+  font-weight: 700;
+  font-size: u(64);
+  line-height: 1.05;
+  letter-spacing: u(-1.92);
+}
+@mixin h2 {
+  font-weight: 700;
+  font-size: u(56);
+  line-height: 1.05;
+  letter-spacing: u(-1.68);
+}
+@mixin lead {
+  font-weight: 400;
+  font-size: u(18);
+  line-height: 1.45;
+  color: var(--temp-secondary);
+}
+@mixin label {
+  font-weight: 500;
+  font-size: u(14);
+  line-height: 1.45;
+}
+
+// Кнопка-пилюля из компонента «ТЕМП / Кнопка»
+@mixin pill($h: 56) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: u($h);
+  padding-inline: u(20);
+  border-radius: u(99);
+  background: var(--temp-button);
+  color: var(--temp-inverse);
+  font-weight: 500;
+  font-size: u(16);
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), background-color 0.4s;
+
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(u(-2));
+      box-shadow: 0 u(10) u(24) var(--temp-shadow);
+    }
+  }
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: u(2) solid var(--temp-focus);
+    outline-offset: u(3);
+  }
+}

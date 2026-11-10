@@ -1,0 +1,50 @@
+@use "styles/core" as *;
+
+.footer {
+  @include container;
+  height: u(80);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  border-radius: u(6);
+  @include focus-ring;
+}
+
+.links {
+  display: flex;
+  gap: u(32);
+}
+
+.link {
+  font-size: u(14);
+  line-height: 1.45;
+  color: var(--temp-secondary);
+  transition: color 0.3s;
+  @include focus-ring;
+
+  @media (hover: hover) {
+    &:hover {
+      color: var(--temp-primary);
+    }
+  }
+}
+
+// ================= МВ =================
+@include mobile {
+  .footer {
+    @include m-container;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    gap: u(16);
+    padding-block: u(16);
+  }
+
+  .links {
+    justify-content: center;
+    gap: u(24);
+  }
+}

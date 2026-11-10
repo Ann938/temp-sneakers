@@ -1,0 +1,126 @@
+@use "core" as *;
+
+// ---- Масштаб ----
+// Ширина делится на ширину макета. Высота тоже участвует: сцены закреплены
+// на весь экран, и на низком окне композиция должна поместиться целиком.
+// Потолок 1.3333 — на больших мониторах сайт не раздувается дальше 1920.
+:root {
+  --u: min(calc(100vw / 1440), calc(100svh / 860), 1.3333px);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  // МВ: макет 390. На планшете колонка растёт до потолка 1.6 и упирается
+  // в высоту экрана — лишняя ширина уходит в поля.
+  @include mobile {
+    --u: min(calc(100vw / 390), calc(100svh / 800), 1.6px);
+  }
+}
+
+// ---- Палитра из переменных Figma (ТЕМП / ДВ · Светлая и Тёмная) ----
+:root,
+[data-theme="light"] {
+  --temp-primary: #101c24;
+  --temp-background: #f8f7f4;
+  --temp-surface: #eaede7;
+  --temp-inverse: #ffffff;
+  --temp-button: #101c24;
+  --temp-secondary: #667077;
+  --temp-border: #d9ddda;
+  --temp-toggle-knob: #ffffff;
+  --temp-toggle-shoe: #101c24;
+  --temp-toggle-icon: #75817a;
+  --temp-shadow: rgba(16, 28, 36, 0.18);
+  --temp-focus: #101c24;
+  --temp-accent: #dffe5e;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --temp-primary: #f6f6f0;
+  --temp-background: #101819;
+  --temp-surface: #273537;
+  --temp-inverse: #101819;
+  --temp-button: #dffe5e;
+  --temp-secondary: #b6c1c1;
+  --temp-border: #435255;
+  --temp-toggle-knob: #dffe5e;
+  --temp-toggle-shoe: #101819;
+  --temp-toggle-icon: #8d9a9b;
+  --temp-shadow: rgba(223, 254, 94, 0.18);
+  --temp-focus: #dffe5e;
+  color-scheme: dark;
+}
+
+// ---- База ----
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--temp-background);
+}
+
+// Lenis: без этих правил плавный скролл конфликтует с нативным
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+body {
+  min-height: 100svh;
+  background: var(--temp-background);
+  color: var(--temp-primary);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  // Смена темы — мягким переливом, геометрия при этом не меняется
+  transition: background-color 0.5s var(--ease-out), color 0.5s var(--ease-out);
+}
+
+img {
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+}
+
+::selection {
+  background: var(--temp-accent);
+  color: #101c24;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -1,0 +1,285 @@
+@use "styles/core" as *;
+
+.main {
+  @include container;
+  padding-top: u($header-h + 48);
+  padding-bottom: u(64);
+}
+
+// ---- Первый экран страницы ----
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: u(520);
+}
+
+.copy {
+  width: u(660);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: u(8);
+  height: u(32);
+  padding-inline: u(14);
+  border-radius: u(99);
+  background: var(--temp-surface);
+  font-weight: 500;
+  font-size: u(14);
+  animation: rise 0.8s var(--ease-out) both;
+
+  &::before {
+    content: "";
+    width: u(8);
+    height: u(8);
+    border-radius: 50%;
+    background: var(--temp-accent);
+    box-shadow: 0 0 0 u(1) rgba(16, 28, 36, 0.2);
+  }
+}
+
+.title {
+  @include h1;
+  display: flex;
+  flex-direction: column;
+  margin-top: u(24);
+  animation: rise 0.9s 0.08s var(--ease-out) both;
+}
+
+.lead {
+  @include lead;
+  margin-top: u(20);
+  max-width: u(520);
+  animation: rise 0.9s 0.16s var(--ease-out) both;
+}
+
+.cta {
+  @include pill(56);
+  width: u(280);
+  margin-top: u(40);
+  animation: rise 0.9s 0.24s var(--ease-out) both;
+  @include focus-ring;
+}
+
+// Кроссовок в «предметной» подаче: мягкий круг-подложка и лёгкое парение
+.visual {
+  position: relative;
+  width: u(600);
+  height: u(520);
+  display: grid;
+  place-items: center;
+}
+
+.disc {
+  position: absolute;
+  width: u(440);
+  height: u(440);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--temp-accent), color-mix(in srgb, var(--temp-accent) 30%, var(--temp-surface)) 70%);
+  opacity: 0.9;
+  animation: pop 1.1s 0.1s var(--ease-out) both;
+}
+
+.shoe {
+  position: relative;
+  width: u(600);
+  height: auto;
+  filter: drop-shadow(0 u(30) u(30) rgba(16, 28, 36, 0.18));
+  animation:
+    enter 1.2s 0.2s var(--ease-out) both,
+    float 6s 1.4s ease-in-out infinite;
+}
+
+// ---- Карточки ----
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: u(20);
+  margin-top: u(40);
+}
+
+.card {
+  animation: rise 0.9s calc(0.3s + var(--i) * 0.08s) var(--ease-out) both;
+}
+
+.cardInner {
+  position: relative;
+  height: 100%;
+  min-height: u(200);
+  padding: u(28);
+  border-radius: u($radius);
+  background: var(--temp-surface);
+  display: flex;
+  flex-direction: column;
+  gap: u(10);
+  transition: transform 0.4s var(--ease-out), background-color 0.4s;
+  @include focus-ring;
+}
+
+a.cardInner {
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(u(-6));
+      background: var(--temp-accent);
+      color: #101c24;
+
+      .cardNote,
+      .cardLabel {
+        color: rgba(16, 28, 36, 0.7);
+      }
+      .arrow {
+        transform: translate(u(3), u(-3));
+      }
+    }
+  }
+}
+
+.cardLabel {
+  @include label;
+  color: var(--temp-secondary);
+}
+
+.cardValue {
+  font-weight: 700;
+  font-size: u(26);
+  line-height: 1.15;
+  letter-spacing: u(-0.6);
+  margin-top: auto;
+}
+
+.cardNote {
+  font-size: u(15);
+  line-height: 1.45;
+  color: var(--temp-secondary);
+}
+
+.arrow {
+  position: absolute;
+  top: u(24);
+  right: u(26);
+  font-size: u(20);
+  transition: transform 0.4s var(--ease-out);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(u(28));
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateX(u(80)) rotate(-6deg);
+  }
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(u(-12)) rotate(-1.5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow,
+  .title,
+  .lead,
+  .cta,
+  .disc,
+  .shoe,
+  .card {
+    animation: none;
+  }
+}
+
+// ================= МВ =================
+// Текст сверху по центру, кроссовок на акцентном круге под ним,
+// карточки — одной колонкой, чтобы длинные почта и адрес не ломались.
+@include mobile {
+  .main {
+    @include m-container;
+    padding-top: u($m-header-h + 24);
+    padding-bottom: u(24);
+  }
+
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+  }
+
+  .copy {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .title {
+    @include m-h1;
+    margin-top: u(20);
+  }
+
+  .lead {
+    @include m-lead;
+    margin-top: u(12);
+  }
+
+  .cta {
+    width: 100%;
+    margin-top: u(28);
+  }
+
+  .visual {
+    width: 100%;
+    height: u(300);
+    margin-top: u(16);
+  }
+
+  .disc {
+    width: u(250);
+    height: u(250);
+  }
+
+  .shoe {
+    width: u(340);
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+    gap: u(12);
+    margin-top: u(8);
+  }
+
+  .cardInner {
+    min-height: 0;
+    padding: u(20);
+    gap: u(6);
+  }
+
+  .cardValue {
+    font-size: u(22);
+    margin-top: u(10);
+  }
+
+  .cardNote {
+    font-size: u(14);
+  }
+
+  .arrow {
+    top: u(18);
+    right: u(20);
+  }
+}

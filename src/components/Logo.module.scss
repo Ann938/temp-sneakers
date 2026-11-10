@@ -1,0 +1,45 @@
+@use "styles/core" as *;
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: u(10);
+  color: var(--temp-primary);
+}
+
+.mark {
+  width: u(47.08);
+  height: u(36);
+  overflow: visible;
+}
+
+// «Знак Т · движение»: при наведении штрих-след чуть отъезжает назад
+.swoosh {
+  transition: transform 0.5s var(--ease-out);
+}
+
+.logo:hover .swoosh {
+  transform: translateX(u(-3));
+}
+
+.word {
+  font-weight: 800;
+  font-size: u(30);
+  letter-spacing: u(0.3);
+  line-height: 1;
+}
+
+// ================= МВ =================
+@include mobile {
+  .logo {
+    gap: u(8);
+  }
+  .mark {
+    width: u(37.92);
+    height: u(29);
+  }
+  .word {
+    font-size: u(25);
+    letter-spacing: u(0.25);
+  }
+}

@@ -1,0 +1,206 @@
+@use "styles/core" as *;
+
+.scene {
+  position: relative;
+}
+
+.stage {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+// Общая рамка контента под хэдером — в ней стоят тексты и блок выбора
+%frame {
+  position: absolute;
+  inset: u($header-h) 0 0;
+  @include container;
+}
+
+.h2 {
+  @include h2;
+  display: flex;
+  flex-direction: column;
+}
+
+.lead {
+  @include lead;
+  margin-top: u(24);
+}
+
+.copy {
+  width: u(600);
+}
+
+// ---- 0. Лёгкость ----
+.step {
+  @extend %frame;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: u(20);
+  z-index: 2;
+}
+
+.stepSlot {
+  width: u(660);
+  aspect-ratio: 1672 / 941;
+  flex: none;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: u($radius);
+    will-change: transform, opacity;
+  }
+}
+
+// ---- Обувь ----
+.shoes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.shoe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: auto;
+  opacity: 0;
+  will-change: transform, opacity;
+  transform-origin: 50% 50%;
+}
+
+// ---- Тексты ----
+.copies {
+  @extend %frame;
+  z-index: 2;
+  pointer-events: none;
+}
+
+// Позиционер держит центр по вертикали, анимируется вложенный .copy
+.copyPos {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  &[data-side="left"] {
+    left: 0;
+  }
+  &[data-side="right"] {
+    left: u(760 - 80);
+  }
+
+  .copy {
+    opacity: 0;
+  }
+}
+
+// «Двигайся по-своему» — слова разъезжаются по краям пары, как в макете
+.words {
+  @include h2;
+  position: absolute;
+  inset: 0;
+
+  span {
+    position: absolute;
+    // в макете слова на 125px выше центра секции
+    top: calc(50% - #{u(95.5)});
+    transform: translateY(-50%);
+    opacity: 0;
+    white-space: nowrap;
+  }
+  [data-word="left"] {
+    left: 0;
+  }
+  [data-word="right"] {
+    left: u(1030 - 80);
+  }
+}
+
+// ---- Выбор пары ----
+.choice {
+  @extend %frame;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+  visibility: hidden; // сцена включает слой в финале
+}
+
+// ================= МВ =================
+// Вертикальная «предметная съёмка»: текст закреплён сверху по центру,
+// обувь меняет ракурсы в зоне под ним. Тексты сменяют друг друга на месте.
+@include mobile {
+  .step,
+  .copies,
+  .choice {
+    inset: u($m-header-h) 0 0;
+    @include m-container;
+  }
+
+  .h2 {
+    @include m-h2;
+  }
+
+  .lead {
+    @include m-lead;
+    margin-top: u(12);
+  }
+
+  .copy {
+    width: 100%;
+    text-align: center;
+  }
+
+  .step {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: u(32);
+    padding-top: u(24);
+
+    .h2 {
+      @include m-h1;
+    }
+  }
+
+  .stepSlot {
+    width: 100%;
+    height: u(300);
+    aspect-ratio: auto;
+  }
+
+  .copyPos {
+    top: u(24);
+    transform: none;
+
+    &[data-side="left"],
+    &[data-side="right"] {
+      left: 0;
+      right: 0;
+    }
+  }
+
+  // «Двигайся по-своему» — одна строка по центру, как в макете МВ (418:800);
+  // слова по-прежнему съезжаются с краёв навстречу друг другу
+  .words {
+    @include m-h2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.28em;
+    padding-top: u(24);
+
+    span {
+      position: static;
+      transform: none;
+    }
+  }
+
+  .choice {
+    align-items: flex-start;
+    padding-top: u(24);
+  }
+}

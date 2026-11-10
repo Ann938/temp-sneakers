@@ -1,0 +1,224 @@
+@use "styles/core" as *;
+
+.scene {
+  position: relative;
+}
+
+// Экран сцены: ровно в окно, контент — в зоне ниже хэдера
+.stage {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.hero,
+.gallery {
+  position: absolute;
+  inset: u($header-h) 0 0;
+  @include container;
+  display: flex;
+  align-items: center;
+}
+
+// ---- Первый экран ----
+.hero {
+  justify-content: space-between;
+}
+
+.heroText {
+  width: u(570);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.title {
+  @include h1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lead {
+  @include lead;
+  margin-top: u(16);
+}
+
+.cta {
+  @include pill(56);
+  width: u(280);
+  margin-top: u(40);
+  @include focus-ring;
+}
+
+.heroSlot {
+  position: relative;
+  width: u(597);
+  height: u(600);
+  border-radius: u($radius);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ---- Галерея ----
+.gallery {
+  flex-direction: column;
+  justify-content: center;
+  gap: u(42);
+  pointer-events: none; // до сборки галереи не перехватывает клики первого экрана
+}
+
+.galleryHead {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .lead {
+    margin-top: u(16);
+  }
+}
+
+.h2 {
+  @include h2;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, u(305));
+  gap: u(20);
+}
+
+.card {
+  position: relative;
+  height: u(290);
+  border-radius: u($radius);
+  overflow: hidden;
+  background: var(--temp-surface);
+
+  &[data-card-slot] {
+    background: transparent;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ---- Летящее фото ----
+// Слой на весь экран. Видимое «окно» задаёт clip-path, а картинка внутри
+// масштабируется как object-fit: cover под это окно — так скругления не
+// искажаются, а фото не растягивается.
+.flyer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  visibility: hidden; // включается сценой, когда геометрия посчитана
+  pointer-events: none;
+
+  img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+}
+
+.more {
+  display: none;
+}
+
+// Без JS и до инициализации видна только композиция первого экрана
+:global(html:not(.motion-ready)) {
+  .gallery {
+    opacity: 0;
+  }
+}
+
+// ================= МВ =================
+// Текст сверху по центру, фото под ним; галерея 2 колонки 173×200.
+@include mobile {
+  .hero,
+  .gallery {
+    inset: u($m-header-h) 0 0;
+    @include m-container;
+  }
+
+  .hero {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: u(32);
+    padding-top: u(24);
+  }
+
+  .heroText {
+    width: 100%;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .title {
+    @include m-h1;
+  }
+
+  .lead {
+    @include m-lead;
+  }
+
+  .cta {
+    width: 100%;
+    margin-top: u(32);
+  }
+
+  .heroSlot {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 645 / 648;
+    flex: none;
+  }
+
+  // Галерея прижата к низу экрана: следующий ряд после пина встаёт ровно
+  // через тот же промежуток 12, сетка читается непрерывной
+  .gallery {
+    justify-content: flex-end;
+    gap: u(32);
+    padding-bottom: u(12);
+  }
+
+  .galleryHead {
+    .lead {
+      margin-top: u(12);
+    }
+  }
+
+  .h2 {
+    @include m-h1;
+  }
+
+  .grid,
+  .more {
+    grid-template-columns: repeat(2, u(173));
+    gap: u(12);
+  }
+
+  .card {
+    height: u(200);
+
+    &[data-desk-only] {
+      display: none;
+    }
+  }
+
+  .more {
+    display: grid;
+    @include m-container;
+    padding-bottom: u(28);
+  }
+}

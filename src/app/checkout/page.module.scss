@@ -1,0 +1,15 @@
+@use "styles/core" as *;
+
+.main {
+  @include container;
+  padding-top: u($header-h + 48);
+  padding-bottom: u(64);
+}
+
+@include mobile {
+  .main {
+    @include m-container;
+    padding-top: u($m-header-h + 24);
+    padding-bottom: u(16);
+  }
+}

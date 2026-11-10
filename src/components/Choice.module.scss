@@ -1,0 +1,301 @@
+@use "styles/core" as *;
+
+.choice {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: u(32);
+}
+
+.title {
+  @include h2;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: u(24);
+}
+
+.controls {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: u(24);
+}
+
+.group {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: u(16);
+  min-width: 0;
+}
+
+.label {
+  @include label;
+  color: var(--temp-primary);
+  float: left; // legend внутри flex ведёт себя как обычный блок только так
+  width: 100%;
+  margin-bottom: u(16);
+}
+
+.value {
+  display: inline-block;
+}
+
+.swatches {
+  display: flex;
+  gap: u(12);
+  clear: both;
+}
+
+// «Цвет / …»: круг 29px с тонкой обводкой, у выбранного — внешнее кольцо 44px
+.swatch {
+  position: relative;
+  width: u(44);
+  height: u(44);
+  border-radius: 50%;
+  @include focus-ring;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: u(7.5);
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: inset 0 0 0 u(1) #c7ccce;
+    transition: transform 0.35s var(--ease-out);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: u(1.5) solid var(--temp-border);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s, transform 0.4s var(--ease-out);
+  }
+
+  &[aria-checked="true"]::after {
+    opacity: 1;
+    transform: none;
+    border-color: var(--temp-primary);
+  }
+
+  @media (hover: hover) {
+    &:hover::before {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.sizes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  row-gap: u(8);
+  clear: both;
+}
+
+// «ТЕМП / Размер»
+.size {
+  width: u(48);
+  height: u(48);
+  border-radius: u(10);
+  border: u(1) solid var(--temp-border);
+  background: var(--temp-background);
+  color: var(--temp-primary);
+  font-weight: 500;
+  font-size: u(16);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, transform 0.25s var(--ease-out);
+  @include focus-ring;
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--temp-primary);
+    }
+  }
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &[aria-checked="true"] {
+    background: var(--temp-button);
+    border-color: var(--temp-button);
+    color: var(--temp-inverse);
+  }
+}
+
+.actions {
+  position: relative;
+  margin-top: u(8);
+}
+
+.cta {
+  @include pill(56);
+  width: u(240);
+  @include focus-ring;
+}
+
+// Подтверждение сохранения — справа от кнопки, ничего не сдвигает
+.note {
+  position: absolute;
+  left: u(264);
+  top: 50%;
+  width: u(340);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: u(2);
+  font-size: u(13);
+  line-height: 1.4;
+  color: var(--temp-secondary);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+
+  b {
+    color: var(--temp-primary);
+    font-weight: 500;
+    font-size: u(14);
+  }
+
+  &[data-show] {
+    opacity: 1;
+  }
+}
+
+.titleLine {
+  display: inline;
+}
+
+// «Фото / pair» — 628 × 267, вписано без обрезки
+.slot {
+  flex: 1 0 0;
+  aspect-ratio: 635 / 270;
+  position: relative;
+}
+
+.pair {
+  position: absolute;
+  inset: 0;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: translateX(u(16)) scale(0.98);
+    transition: opacity 0.5s var(--ease-out), transform 0.7s var(--ease-out);
+
+    &[data-active] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+// ================= МВ =================
+// Порядок по макету МВ: заголовок → фото пары → цвет → размер → кнопка.
+@include mobile {
+  .choice {
+    gap: u(24);
+  }
+
+  .title {
+    @include m-h2;
+  }
+
+  .titleLine {
+    display: block;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .slot {
+    order: -1;
+    flex: none;
+    width: 100%;
+    aspect-ratio: auto;
+    height: u(162);
+  }
+
+  // пара на всю ширину: прозрачные поля исходника срезаются
+  .pair img {
+    object-fit: cover;
+  }
+
+  .controls {
+    flex: none;
+    gap: u(24);
+  }
+
+  .group {
+    align-items: center;
+  }
+
+  .label {
+    text-align: center;
+  }
+
+  .swatches {
+    justify-content: center;
+  }
+
+  // «Выбор размера» (405:657): одна строка 48 с шагом 10, листается вбок.
+  // Лента выходит из колонки до краёв экрана — обрезанная кнопка у края
+  // подсказывает, что размеров больше.
+  .sizes {
+    display: flex;
+    flex-wrap: nowrap; // перебивает перенос из ДВ
+    justify-content: flex-start;
+    gap: u(10);
+    width: calc(100% + #{u(32)});
+    margin-inline: u(-16);
+    padding-inline: u(16);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: u(16);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .size {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .actions {
+    margin-top: 0;
+  }
+
+  .cta {
+    width: 100%;
+  }
+
+  .note {
+    position: static;
+    width: 100%;
+    transform: none;
+    margin-top: u(10);
+    text-align: center;
+    align-items: center;
+    height: 0;
+    overflow: visible;
+  }
+}

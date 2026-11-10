@@ -1,0 +1,81 @@
+@use "styles/core" as *;
+
+.toggle {
+  position: relative;
+  width: u(88);
+  height: u(44);
+  border-radius: u(22);
+  background: var(--temp-surface);
+  transition: background-color 0.5s var(--ease-out);
+  @include focus-ring;
+}
+
+.icon {
+  position: absolute;
+  top: u(13);
+  width: u(18);
+  height: u(18);
+  fill: none;
+  stroke: var(--temp-toggle-icon);
+  stroke-width: 1.275;
+  transition: opacity 0.4s, transform 0.6s var(--ease-out);
+}
+
+.sun {
+  left: u(13);
+}
+.moon {
+  left: u(57);
+}
+
+.knob {
+  position: absolute;
+  top: u(4);
+  left: u(4);
+  width: u(36);
+  height: u(36);
+  border-radius: u(18);
+  background: var(--temp-toggle-knob);
+  box-shadow: 0 u(2) u(6) rgba(16, 28, 36, 0.12);
+  display: grid;
+  place-items: center;
+  // бегунок не «телепортируется», а пробегает дорожку
+  transition: transform 0.55s var(--ease-out), background-color 0.5s var(--ease-out);
+
+  svg {
+    width: u(28);
+    height: u(22);
+    transition: transform 0.55s var(--ease-out);
+  }
+}
+
+.shoe {
+  fill: var(--temp-toggle-shoe);
+}
+.laces {
+  fill: none;
+  stroke: var(--temp-toggle-knob);
+  stroke-width: 1.225;
+}
+
+.toggle[data-dark] {
+  .knob {
+    transform: translateX(u(44));
+  }
+  .sun {
+    transform: rotate(-90deg);
+  }
+  .moon {
+    opacity: 0;
+  }
+}
+
+.toggle:not([data-dark]) .sun {
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .toggle:hover .knob svg {
+    transform: rotate(-8deg) translateY(u(-1));
+  }
+}
