@@ -68,7 +68,8 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
   const photoSlot = photo.parentElement as HTMLElement;
   const choice = q("[data-choice]");
   const choiceTitle = q("[data-choice-title]");
-  const choiceControls = q("[data-choice-controls]");
+  // цвет/размер и кнопка (на ДВ кнопка стоит под фото пары)
+  const choiceControls = Array.from(root.querySelectorAll<HTMLElement>("[data-choice-controls]"));
   const choicePair = q("[data-choice-pair]");
   const choiceSlot = q("[data-choice-slot]");
   const wordL = q("[data-word=left]");
@@ -146,7 +147,10 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     // Финал: пара спереди садится туда, где стоит пара в блоке выбора
     // (ДВ — вписана целиком, МВ — на всю ширину с обрезкой пустых полей)
     const cs = relRect(choiceSlot, stage);
-    const pair = fitRect(cs, PAIR_ASPECT, mobile ? "cover" : "contain");
+    // ДВ (445:646): пара 75.53% ширины рамки по центру, сдвинута вверх на 18%
+    const pair = mobile
+      ? fitRect(cs, PAIR_ASPECT, "cover")
+      : { x: cs.x + cs.w * 0.1224, y: cs.y - cs.h * 0.18, w: cs.w * 0.7553, h: cs.h * 1.2667 };
     g.choicePose = { cx: pair.x + pair.w / 2, cy: pair.y + pair.h / 2, w: pair.w * 0.93 };
 
     // Базовая ширина = самая крупная поза: масштаб только ≤ 1
@@ -255,7 +259,7 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
   const late = mobile ? 0.12 : 0;
   tl.fromTo(choice, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, t + 0.55 * F);
   tl.fromTo(choiceTitle, { y: U(36), autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.32 * F, ease: "power2.out" }, t + 0.62 * F);
-  tl.fromTo(choiceControls, { y: U(36), autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: (0.3 - late) * F, ease: "power2.out" }, t + (0.68 + late) * F);
+  tl.fromTo(choiceControls, { y: U(36), autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: (0.3 - late) * F, ease: "power2.out", stagger: 0.04 }, t + (0.68 + late) * F);
   // пара спереди переливается в пару сбоку выбранного цвета
   tl.fromTo(choicePair, { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.3 * F }, t + 0.7 * F);
   tl.to(shoe.front, { opacity: 0, duration: 0.28 * F }, t + 0.72 * F);

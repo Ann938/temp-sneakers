@@ -12,16 +12,19 @@
   text-align: center;
 }
 
+// Макет 445:646: одна колонка по центру —
+// цвет → размер → крупная пара → кнопка
 .row {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: u(24);
 }
 
 .controls {
-  flex: 1 0 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: u(24);
 }
 
@@ -29,6 +32,7 @@
   border: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: u(16);
   min-width: 0;
 }
@@ -39,6 +43,7 @@
   float: left; // legend внутри flex ведёт себя как обычный блок только так
   width: 100%;
   margin-bottom: u(16);
+  text-align: center;
 }
 
 .value {
@@ -93,11 +98,11 @@
   }
 }
 
+// все 11 размеров одной строкой, шаг 16
 .sizes {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  row-gap: u(8);
+  justify-content: center;
+  gap: u(16);
   clear: both;
 }
 
@@ -132,8 +137,8 @@
   }
 }
 
+// от фото до кнопки 32: 24 общего шага + 8
 .actions {
-  position: relative;
   margin-top: u(8);
 }
 
@@ -143,42 +148,17 @@
   @include focus-ring;
 }
 
-// Подтверждение сохранения — справа от кнопки, ничего не сдвигает
-.note {
-  position: absolute;
-  left: u(264);
-  top: 50%;
-  width: u(340);
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: u(2);
-  font-size: u(13);
-  line-height: 1.4;
-  color: var(--temp-secondary);
-  opacity: 0;
-  transition: opacity 0.4s var(--ease-out);
-
-  b {
-    color: var(--temp-primary);
-    font-weight: 500;
-    font-size: u(14);
-  }
-
-  &[data-show] {
-    opacity: 1;
-  }
-}
-
 .titleLine {
   display: inline;
 }
 
-// «Фото / pair» — 628 × 267, вписано без обрезки
+// «Фото / pair» — 894 × 300. Пара 675 по ширине по центру, прозрачные
+// поля исходника сверху и снизу срезаны рамкой (как в макете)
 .slot {
-  flex: 1 0 0;
-  aspect-ratio: 635 / 270;
+  width: u(894);
+  height: u(300);
   position: relative;
+  overflow: hidden;
 }
 
 .pair {
@@ -187,9 +167,10 @@
 
   img {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    left: 12.24%;
+    top: -18%;
+    width: 75.53%;
+    height: 126.67%;
     object-fit: contain;
     opacity: 0;
     transform: translateX(u(16)) scale(0.98);
@@ -232,12 +213,22 @@
 
   // пара на всю ширину: прозрачные поля исходника срезаются
   .pair img {
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 
+  // колонка на всю ширину экрана: иначе её раздувает лента размеров
   .controls {
     flex: none;
+    align-items: stretch;
+    width: 100%;
     gap: u(24);
+  }
+
+  .actions {
+    width: 100%;
   }
 
   .group {

@@ -25,7 +25,9 @@ export default function Choice() {
     if (!row || row.scrollWidth <= row.clientWidth) return;
     const btn = row.querySelector<HTMLElement>('[aria-checked="true"]');
     if (!btn) return;
-    const left = btn.offsetLeft - (row.clientWidth - btn.offsetWidth) / 2;
+    // позиция кнопки внутри ленты (offsetLeft считается от другого предка)
+    const inRow = btn.getBoundingClientRect().left - row.getBoundingClientRect().left + row.scrollLeft;
+    const left = inRow - (row.clientWidth - btn.offsetWidth) / 2;
     row.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
   }, [order.size]);
 
@@ -80,12 +82,6 @@ export default function Choice() {
               ))}
             </div>
           </fieldset>
-
-          <div className={s.actions}>
-            <Link href="/checkout" className={s.cta}>
-              {choose.cta}
-            </Link>
-          </div>
         </div>
 
         <div className={s.slot} data-choice-slot>
@@ -101,6 +97,13 @@ export default function Choice() {
               />
             ))}
           </div>
+        </div>
+
+        {/* Кнопка — под фото пары (макет 445:646) */}
+        <div className={s.actions} data-choice-controls>
+          <Link href="/checkout" className={s.cta}>
+            {choose.cta}
+          </Link>
         </div>
       </div>
     </div>
