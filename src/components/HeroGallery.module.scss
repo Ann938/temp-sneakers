@@ -151,11 +151,12 @@
     @include m-container;
   }
 
+  // по центру экрана: поля сверху и снизу одинаковые на любой высоте
   .hero {
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     gap: u(32);
-    padding-top: u(24);
+    padding-bottom: u(24);
   }
 
   .heroText {
@@ -184,12 +185,13 @@
     flex: none;
   }
 
-  // Галерея прижата к низу экрана: следующий ряд после пина встаёт ровно
-  // через тот же промежуток 12, сетка читается непрерывной
+  // Галерея начинается сразу под хэдером. Ряды 3–4 после пина сцена
+  // подтягивает вплотную (hero.ts → отрицательный отступ у .more),
+  // поэтому сетка читается сплошной и пустых полос нет.
   .gallery {
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: u(32);
-    padding-bottom: u(12);
+    padding-top: u(24);
   }
 
   .galleryHead {

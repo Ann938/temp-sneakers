@@ -69,9 +69,10 @@ await page.getByRole("radio", { name: "розовый" }).click();
 await page.getByRole("radio", { name: "42" }).click();
 await wait(700);
 await shot("choose-pink-42");
-await page.getByRole("button", { name: /Оформить заказ/ }).click();
+await page.getByRole("link", { name: "Оформить заказ" }).click();
+await page.waitForURL("**/checkout**");
 await wait(600);
-await shot("choose-saved");
+await shot("choose-to-checkout");
 log("stored", await page.evaluate(() => localStorage.getItem("temp:order")));
 
 // 6. Служебные страницы и возврат к разделу

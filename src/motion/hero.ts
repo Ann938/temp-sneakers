@@ -23,6 +23,9 @@ export function buildHero(root: HTMLElement, { reduced, mobile }: { reduced: boo
   const gallery = head.parentElement as HTMLElement;
   const cards = gsap.utils.toArray<HTMLElement>(root.querySelectorAll("[data-card]:not([data-card-slot])"));
 
+  const gridEl = cardSlot.parentElement as HTMLElement;
+  const moreList = root.querySelector<HTMLElement>("[data-more-card]")?.parentElement ?? null;
+
   const geo = { W: 0, H: 0, u: 1, hero: {} as Rect, full: {} as Rect, card: {} as Rect };
 
   const measure = () => {
@@ -38,6 +41,15 @@ export function buildHero(root: HTMLElement, { reduced, mobile }: { reduced: boo
     geo.full = { x: pad, y: top, w: geo.W - pad * 2, h: geo.H - top - pad };
     // reduced motion: без «подъезда» камеры — фото сразу переходит в карточку
     if (reduced) geo.full = geo.hero;
+    // МВ: ряды 3–4 идут после пина. Подтягиваем их в пустую часть экрана
+    // под вторым рядом, чтобы между рядами был тот же шаг 12.
+    if (moreList) {
+      if (mobile) {
+        const grid = relRect(gridEl, stage);
+        const gap = geo.H - (grid.y + grid.h) - 12 * geo.u;
+        moreList.style.marginTop = `${-Math.max(0, gap)}px`;
+      } else moreList.style.marginTop = "";
+    }
     img.style.width = `${geo.W}px`;
     img.style.height = `${geo.W / PHOTO_ASPECT}px`;
   };

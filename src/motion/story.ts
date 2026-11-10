@@ -39,14 +39,16 @@ const POSES_D: Record<ShoeId, [Pose, Pose]> = {
   front: [{ cx: 720, dy: 10, w: 960 }, { cx: 720, dy: 6, w: 990 }],
 };
 
-// МВ (холст 390): текст закреплён сверху, обувь — в зоне под ним.
-// dy ≈ +65 — центр свободной зоны между текстом и шкалой прогресса.
+// МВ (холст 390): «карточка товара» — текст сверху, вся остальная высота
+// экрана — студия. dy здесь от центра этой зоны (считается по фактической
+// высоте текста), поэтому пустот нет на любом телефоне. Обувь крупная и
+// чуть выходит за края экрана — ощущение крупного плана.
 const POSES_M: Record<ShoeId, [Pose, Pose]> = {
-  landing: [{ cx: 195, dy: 66, w: 384 }, { cx: 200, dy: 70, w: 408 }],
-  fresh: [{ cx: 195, dy: 74, w: 340 }, { cx: 192, dy: 70, w: 362 }],
-  fit: [{ cx: 195, dy: 66, w: 384 }, { cx: 198, dy: 62, w: 406 }],
-  route: [{ cx: 205, dy: 70, w: 404 }, { cx: 210, dy: 74, w: 428 }],
-  front: [{ cx: 195, dy: 60, w: 410 }, { cx: 195, dy: 56, w: 430 }],
+  landing: [{ cx: 195, dy: 0, w: 430 }, { cx: 202, dy: 4, w: 456 }],
+  fresh: [{ cx: 195, dy: 0, w: 390 }, { cx: 190, dy: -4, w: 414 }],
+  fit: [{ cx: 195, dy: 0, w: 430 }, { cx: 200, dy: -4, w: 452 }],
+  route: [{ cx: 208, dy: 0, w: 450 }, { cx: 214, dy: 4, w: 474 }],
+  front: [{ cx: 195, dy: 0, w: 440 }, { cx: 195, dy: -4, w: 460 }],
 };
 
 // Кроссовок на фото «Лёгкость»: центр и доля ширины кадра (замер по исходнику)
@@ -85,9 +87,27 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     bridgeStart: {} as PxPose,
     photoMove: { x: 0, y: 0, scale: 1 },
     choicePose: {} as PxPose,
+    zoneMid: 0,
   };
 
-  const px = (p: Pose) => poseToPx(p, g.W, g.H);
+  // МВ: позы считаются от центра студии под текстом, ДВ — от центра экрана
+  const px = (p: Pose): PxPose =>
+    mobile
+      ? { cx: (g.W - 390 * g.u) / 2 + p.cx * g.u, cy: g.zoneMid + p.dy * g.u, w: p.w * g.u }
+      : poseToPx(p, g.W, g.H);
+
+  const spot = q("[data-spot]");
+  const copyPositioners = Object.values(copy).map((c) => c.parentElement as HTMLElement);
+  const measureZone = () => {
+    if (!mobile) return;
+    // нижняя граница самого высокого текста — дальше начинается студия
+    const textBottom = Math.max(...copyPositioners.map((el) => { const r = relRect(el, stage); return r.y + r.h; }));
+    const top = textBottom + 8 * g.u;
+    const bottom = g.H - 12 * g.u;
+    g.zoneMid = (top + bottom) / 2;
+    const d = Math.min((bottom - top) * 0.95, 380 * g.u);
+    Object.assign(spot.style, { width: `${d}px`, height: `${d}px`, left: `${g.W / 2 - d / 2}px`, top: `${g.zoneMid - d / 2}px` });
+  };
 
   const choiceInner = choice.firstElementChild as HTMLElement;
   const fitChoice = () => {
@@ -103,6 +123,7 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     g.W = s.width;
     g.H = s.height;
     g.u = getU();
+    measureZone();
 
     // Фото шага и точка кроссовка на нём. На МВ фото обрезано (cover),
     // поэтому точку считаем от реального положения картинки в слоте.
@@ -174,6 +195,8 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
     t,
   );
   tl.to(shoe.landing, { opacity: 1, duration: 0.6 * M }, t + 0.6 * M);
+  // МВ: студия проявляется вместе с кроссовком без фона
+  if (mobile) tl.fromTo(spot, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.8 * M, ease: "power2.out" }, t + 0.7 * M);
   t += B;
 
   // Тексты и прогресс
@@ -226,6 +249,7 @@ export function buildStory(root: HTMLElement, { reduced, mobile }: { reduced: bo
   tl.to(wordL, { x: U(-90), autoAlpha: 0, duration: 0.4 * F, ease: "power1.in" }, t);
   tl.to(wordR, { x: U(90), autoAlpha: 0, duration: 0.4 * F, ease: "power1.in" }, t);
   tl.to(shoe.front, { ...T("front", () => g.choicePose), duration: F, ease: "power3.inOut" }, t);
+  if (mobile) tl.to(spot, { autoAlpha: 0, scale: 0.8, duration: 0.4 * F, ease: "power1.in" }, t);
   // интерфейс выбора появляется, когда пара уже ушла из зоны заголовка;
   // на МВ пара летит вверх сквозь зону цветов и размеров — ждём дольше
   const late = mobile ? 0.12 : 0;
