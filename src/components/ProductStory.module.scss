@@ -158,7 +158,7 @@
   .step {
     flex-direction: column;
     justify-content: center;
-    gap: u(32);
+    gap: u(48); // текст → фото чуть свободнее макетных 32, меньше пустоты по краям экрана
 
     .h2 {
       @include m-h1;

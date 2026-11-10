@@ -9,7 +9,7 @@ type Theme = "light" | "dark";
 // Тема меняется только атрибутом на <html> — геометрия страницы и прогресс
 // сцен не трогаются, поэтому положение скролла сохраняется.
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark"); // по умолчанию сайт тёмный
 
   useEffect(() => {
     // тема уже выставлена скриптом в <head>, синхронизируемся с ней
