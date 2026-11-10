@@ -17,7 +17,8 @@ const env = {
 
 // 1. Сборка
 rmSync("out", { recursive: true, force: true });
-const build = spawnSync("npx", ["next", "build"], { env, stdio: "inherit", shell: true });
+// next запускаем напрямую через node — без shell, одинаково на Windows и macOS
+const build = spawnSync(process.execPath, ["node_modules/next/dist/bin/next", "build"], { env, stdio: "inherit" });
 if (build.status !== 0) process.exit(build.status ?? 1);
 if (!existsSync("out/index.html")) throw new Error("Сборка не создала out/index.html");
 writeFileSync("out/.nojekyll", ""); // иначе GitHub Pages спрячет папку _next

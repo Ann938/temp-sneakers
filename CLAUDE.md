@@ -32,6 +32,14 @@
 - На МВ в пин первой сцены входят два ряда галереи, ряды 3–4 — список `.more` сразу после пина.
 - Проверка МВ — WebKit: `ENGINE=webkit MOBILE=1 node scripts/shot.mjs <url> <out> 390 844`, `node scripts/check-mobile.mjs <out>`.
 
+## Публикация
+- Сайт: https://ann938.github.io/temp-sneakers/ (GitHub Pages, репозиторий Ann938/temp-sneakers, публичный).
+- Обновить: закоммитить изменения, `git push`, затем `npm run deploy` — статическая сборка в `out/`
+  (`PAGES_EXPORT=1`, подпапка `/temp-sneakers`) и выкладка в ветку `gh-pages`.
+  `npm run deploy -- --build-only` — только собрать `out/` для локальной проверки.
+- Картинки из `public/` указывать через `asset()` из `content.ts`, внутренние якоря — через `BASE_PATH`,
+  иначе на Pages они потеряют подпапку. `<Link>` подпапку добавляет сам.
+
 ## Этапы
 1. ДВ главной с анимацией + служебные страницы — сделано.
 2. МВ — сделано (телефон и планшет), ждёт проверки заказчика.
